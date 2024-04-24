@@ -1,0 +1,42 @@
+[2024-04-24T09:35:18.964+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: use_case_dag.task_3 manual__2024-04-24T09:29:32.828294+00:00 [queued]>
+[2024-04-24T09:35:18.980+0000] {taskinstance.py:1979} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: use_case_dag.task_3 manual__2024-04-24T09:29:32.828294+00:00 [queued]>
+[2024-04-24T09:35:18.982+0000] {taskinstance.py:2193} INFO - Starting attempt 2 of 6
+[2024-04-24T09:35:19.004+0000] {taskinstance.py:2217} INFO - Executing <Task(_PythonDecoratedOperator): task_3> on 2024-04-24 09:29:32.828294+00:00
+[2024-04-24T09:35:19.014+0000] {standard_task_runner.py:60} INFO - Started process 7957 to run task
+[2024-04-24T09:35:19.021+0000] {standard_task_runner.py:87} INFO - Running: ['***', 'tasks', 'run', 'use_case_dag', 'task_3', 'manual__2024-04-24T09:29:32.828294+00:00', '--job-id', '43', '--raw', '--subdir', 'DAGS_FOLDER/use_case_dag.py', '--cfg-path', '/tmp/tmptnt5xsn3']
+[2024-04-24T09:35:19.026+0000] {standard_task_runner.py:88} INFO - Job 43: Subtask task_3
+[2024-04-24T09:35:19.104+0000] {task_command.py:423} INFO - Running <TaskInstance: use_case_dag.task_3 manual__2024-04-24T09:29:32.828294+00:00 [running]> on host 426889f50441
+[2024-04-24T09:35:19.234+0000] {taskinstance.py:2513} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='matteo' AIRFLOW_CTX_DAG_ID='use_case_dag' AIRFLOW_CTX_TASK_ID='task_3' AIRFLOW_CTX_EXECUTION_DATE='2024-04-24T09:29:32.828294+00:00' AIRFLOW_CTX_TRY_NUMBER='2' AIRFLOW_CTX_DAG_RUN_ID='manual__2024-04-24T09:29:32.828294+00:00'
+[2024-04-24T09:35:31.188+0000] {taskinstance.py:2731} ERROR - Task failed with exception
+Traceback (most recent call last):
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 444, in _execute_task
+    result = _execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/models/taskinstance.py", line 414, in _execute_callable
+    return execute_callable(context=context, **execute_callable_kwargs)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/decorators/base.py", line 241, in execute
+    return_value = super().execute(context)
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 200, in execute
+    return_value = self.execute_callable()
+  File "/home/airflow/.local/lib/python3.8/site-packages/airflow/operators/python.py", line 217, in execute_callable
+    return self.python_callable(*self.op_args, **self.op_kwargs)
+  File "/opt/airflow/dags/use_case_dag.py", line 51, in task_3
+    utils.get_best_countries(joined_data, best_recovery_countries)
+  File "/opt/airflow/dags/utils.py", line 118, in get_best_countries
+    best_recovery_countries = joined_df.select("location", "recovery_rate").orderBy(col("recovery_rate").desc()).limit(40)
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyspark/sql/dataframe.py", line 3227, in select
+    jdf = self._jdf.select(self._jcols(*cols))
+  File "/home/airflow/.local/lib/python3.8/site-packages/py4j/java_gateway.py", line 1322, in __call__
+    return_value = get_return_value(
+  File "/home/airflow/.local/lib/python3.8/site-packages/pyspark/errors/exceptions/captured.py", line 185, in deco
+    raise converted from None
+pyspark.errors.exceptions.captured.AnalysisException: [UNRESOLVED_COLUMN.WITH_SUGGESTION] A column or function parameter with name `location` cannot be resolved. Did you mean one of the following? [`_c0`].;
+'Project ['location, 'recovery_rate]
++- Relation [_c0#17] csv
+
+[2024-04-24T09:35:31.231+0000] {taskinstance.py:1149} INFO - Marking task as UP_FOR_RETRY. dag_id=use_case_dag, task_id=task_3, execution_date=20240424T092932, start_date=20240424T093518, end_date=20240424T093531
+[2024-04-24T09:35:31.261+0000] {standard_task_runner.py:107} ERROR - Failed to execute job 43 for task task_3 ([UNRESOLVED_COLUMN.WITH_SUGGESTION] A column or function parameter with name `location` cannot be resolved. Did you mean one of the following? [`_c0`].;
+'Project ['location, 'recovery_rate]
++- Relation [_c0#17] csv
+; 7957)
+[2024-04-24T09:35:31.310+0000] {local_task_job_runner.py:234} INFO - Task exited with return code 1
+[2024-04-24T09:35:31.343+0000] {taskinstance.py:3312} INFO - 0 downstream tasks scheduled from follow-on schedule check

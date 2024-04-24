@@ -1,0 +1,48 @@
+default_args:
+  owner: 'matteo'
+  depends_on_past: False
+  email_on_failure: False
+  email_on_retry: False
+  retries: 5
+  retry_delay_min: 5 
+
+data_collections: [['country_wise_covid',{'path': 'data/country_wise_covid/country_wise_latest.csv'}], 
+                  ['large_covid_data',{'path': 'data/large_covid_data/owid-covid-data.csv'}]]
+
+
+
+data_pipeline:
+  dag: 
+    dag_id: use_case_dag
+    default_args: default_args
+    schedule_interval: "None"
+    description : 'Use Case dag'
+    start_date : '2024,4,18'
+
+  tasks:
+    - id: task_1
+      description: "First Use Case Task"
+      input_data_collections : ['large_covid_data']
+      output_data_collection : ['transformed_owid_covid_data', {'path': 'data/transformed_owid_covid_data'}]
+      task_function: "transform_owid_data"
+      check_output_state : "check_output_1"
+      
+      
+
+    - id: task_2
+      description: "Second Use Case Task"
+      input_data_collections : ['transformed_owid_covid_data', 'country_wise_covid']
+      output_data_collection : ['joined_data', {'path': 'data/joined_data'}]
+      task_function: "join_data"
+      check_output_state : "check_output_2" 
+   
+   
+
+    - id: task_3
+      description: "Third Use Case Task"
+      input_data_collections : ['joined_data']
+      output_data_collection : ['best_recovery_countries', {'path': 'data/best_recovery_countries'}]
+      task_function: "get_best_countries"
+      check_output_state : "check_output_3"
+      
+      
