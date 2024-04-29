@@ -3,6 +3,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import to_date, col, when
 import os
 import shutil
+import psycopg2
+import pandas as pd
 
 def transform_owid_data(large_covid_data, transformed_owid_covid_data):
     
@@ -119,9 +121,67 @@ def get_best_countries(joined_data, best_recovery_countries):
 
 		best_recovery_countries.write.mode('overwrite').csv('data/best_recovery_countries', header=True)
 
-
-
 	spark.stop()
+
+
+def load_data_into_postgres(best_recovery_countries, db_data):
+	HOSTNAME = 'localhost'
+	DATABASE = 'usecase'
+	USERNAME = 'postgres'
+	PASSWORD = 'admin'
+	PORT_ID = 5433
+
+
+
+	conn = None
+	curr = None
+
+	try:
+		conn = psycopg2.connect(
+			host=HOSTNAME,
+			dbname=DATABASE,
+			password=PASSWORD,
+			user=USERNAME,
+			port=PORT_ID
+		)
+		curr = conn.cursor()
+
+		curr.execute('DROP TABLE IF EXISTS best_recovery_countries')
+
+		# Create table
+		create_table = '''
+		CREATE TABLE IF NOT EXISTS best_recovery_countries(
+			location VARCHAR(255),
+			recovery_rate FLOAT
+		)
+		'''
+		curr.execute(create_table)
+
+		# read dataframe
+		df = pd.read_csv(f"{best_recovery_countries.kw_args['path']}/part-00000-35450d23-e972-487b-8dfe-9d4fe0b7614f-c000.csv")
+		df = df.drop_duplicates(['location'])
+
+		insert_script = 'INSERT INTO best_recovery_countries (location, recovery_rate) VALUES (%s, %s)'
+		insert_values = [tuple(x) for x in df.itertuples(index=False)]
+
+		# load into postgres
+		for record in insert_values:
+			curr.execute(insert_script, record)
+
+
+		conn.commit()
+
+
+	except Exception as err:
+		print(err)
+	finally:
+		if curr is not None:
+			curr.close()
+		if conn is not None:
+			conn.close()
+
+
+		
 
 
 

@@ -53,11 +53,19 @@ def define_pipeline():
    best_recovery_countries = DataCollection('best_recovery_countries', {'path': 'data/best_recovery_countries'})
    task_3 = task_3(joined_data, best_recovery_countries)
 
+   @task
+   def task_4(best_recovery_countries, db_data):
+        utils.load_data_into_postgres(best_recovery_countries, db_data)
+
+   db_data = DataCollection('db_data', {'path': 'data/db_data'})
+   task_4 = task_4(best_recovery_countries, db_data)
+
      
 # Tasks dependencies
 
    task_1 >> task_2
    task_2 >> task_3
+   task_3 >> task_4
 
      
 

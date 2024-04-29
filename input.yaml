@@ -9,8 +9,6 @@ default_args:
 data_collections: [['country_wise_covid',{'path': 'data/country_wise_covid/country_wise_latest.csv'}], 
                   ['large_covid_data',{'path': 'data/large_covid_data/owid-covid-data.csv'}]]
 
-
-
 data_pipeline:
   dag: 
     dag_id: use_case_dag
@@ -27,8 +25,6 @@ data_pipeline:
       task_function: "transform_owid_data"
       check_output_state : "check_output_1"
       
-      
-
     - id: task_2
       description: "Second Use Case Task"
       input_data_collections : ['transformed_owid_covid_data', 'country_wise_covid']
@@ -36,13 +32,22 @@ data_pipeline:
       task_function: "join_data"
       check_output_state : "check_output_2" 
    
-   
-
     - id: task_3
       description: "Third Use Case Task"
       input_data_collections : ['joined_data']
       output_data_collection : ['best_recovery_countries', {'path': 'data/best_recovery_countries'}]
       task_function: "get_best_countries"
       check_output_state : "check_output_3"
+
+    - id: task_4
+      description: "Fourth Use Case Task"
+      input_data_collections : ['best_recovery_countries']
+      output_data_collection : ['db_data', {'path': 'data/db_data'}]
+      task_function: "load_data_into_postgres"
+      check_output_state : "check_output_4"
+      
+
+
+
       
       
