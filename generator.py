@@ -37,7 +37,8 @@ class DataCollection:
         self.kw_args = kw_args
 
 
-
+class MultipleOutputDataCollectionsException(Exception):
+    pass 
 
 
 def create_dag_decorator(data_pipeline):
@@ -68,7 +69,10 @@ def create_dag_decorator(data_pipeline):
 
 def create_task_function(task,project_name,dag_config):
     if len(task['output_data_collection']) <= 1:
-        raise Exception("output_data_collection must have the arg 'path")
+        raise Exception("output_data_collection must have the arg 'path'")
+    
+    if len(task['output_data_collection']) > 2:
+        raise MultipleOutputDataCollectionsException(f"The output data collection of {task['id']} must be unique")
 
     # create output data collection folders
     output_path = task['output_data_collection'][1]['path']
@@ -172,9 +176,10 @@ def is_acyclic_graph(input_string):
     for line in input_lines:
         parts = line.split(">>")
         if len(parts) == 2:
+            if parts[0].startswith('[') or parts[1].startswith('['):
+                 return False
             start, end = parts[0].strip(), parts[1].strip()
             G.add_edge(start, end)
-
     return nx.is_directed_acyclic_graph(G)
 
 class CyclicGraphException(Exception):
