@@ -9,10 +9,13 @@ import copy
 # YAML utility functions
 def create_project_directory(project_name):
     """
-    Create the project directory
+    Create the directories dags,logs,plugins,config 
     """
-    os.makedirs(project_name, exist_ok=True)
-    print(f"Created directories for {project_name}.")
+    directories = ['dags']
+    for directory in directories:
+        path = os.path.join(project_name, directory)
+        os.makedirs(path, exist_ok=True)
+    print(f"Created directory for {project_name}.")
 
 def load_dag_config(yaml_file_path):
     with open(yaml_file_path, 'r') as file:
@@ -71,9 +74,7 @@ def create_task_function(task,project_name,dag_config):
     if len(task['output_data_collection']) > 2:
         raise MultipleOutputDataCollectionsException(f"The output data collection of {task['id']} must be unique")
 
-
-    
-    
+  
     
     
     inputs = list()
@@ -87,7 +88,7 @@ def create_task_function(task,project_name,dag_config):
     #Generate task_function
     task_function = task.get('task_function')
     if task_function is not None:
-        with open(os.path.join(project_name, "utils.py"), 'a') as f:
+        with open(os.path.join(project_name, 'dags', "utils.py"), 'a') as f:
             f.write(f"def {task['task_function']}({input_string}):\n")
             f.write("\tpass\n\n")
 
@@ -95,7 +96,7 @@ def create_task_function(task,project_name,dag_config):
     #Generate check_output_state_function
     check_output_state = task.get('task_function')
     if check_output_state is not None:
-        with open(os.path.join(project_name,"utils.py"), 'a') as f:
+        with open(os.path.join(project_name, 'dags', "utils.py"), 'a') as f:
             f.write(f"def {task['check_output_state']}({output_string}):\n")
             f.write("\t pass\n\n")
 
@@ -205,7 +206,7 @@ default_args = {default_args}
 
 """
     #Create utils file
-    with open(os.path.join(project_name, "utils.py"), 'w') as f:
+    with open(os.path.join(project_name, 'dags', "utils.py"), 'w') as f:
         f.write("# Write here tasks callbacks\n\n")
 
     dag_file_content += "# Data Collections instantiation\n"
@@ -251,7 +252,7 @@ default_args = {default_args}
     
 
 
-    with open(os.path.join(project_name, f"{data_pipeline['dag']['dag_id']}.py"), 'w') as f:
+    with open(os.path.join(project_name, 'dags', f"{data_pipeline['dag']['dag_id']}.py"), 'w') as f:
         f.write(dag_file_content)
     print(f"DAG '{data_pipeline['dag']['dag_id']}' creato.")
 
